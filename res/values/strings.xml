@@ -9,5 +9,8 @@
     <string name="no">No</string>
     <string name="welcome">Welcome</string>
     <string name="good_morning">Good morning</string>
+    <string name="good_morning2">Good morning</string>
     <string name="good_night">Good night</string>
+    <string name="german_example">Beispiel</string>
+    <string name="empty_key"></string>
 </resources>
