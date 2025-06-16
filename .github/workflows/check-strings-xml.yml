@@ -20,13 +20,13 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }}
           git status
-          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '/strings.xml' || true
         shell: bash
 
       - name: Get list of changed strings.xml files
         id: changed_strings
         run: |
-          echo "files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' | xargs)" >> $GITHUB_OUTPUT
+          echo "files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '/strings.xml' | xargs)" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run logical checks on changed strings.xml files
