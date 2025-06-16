@@ -1,6 +1,0 @@
-| Issue Type | String Key | Files | Details |
-|------------|-----------|-------|---------|
-| 🔁 String Duplicated | good_morning2 | res/values-de/strings.xml, res/values-it/strings.xml, res/values/strings.xml | Value is duplicated in file. |
-| ⚠️ Not Translated | german_example | res/values-de/strings.xml, res/values-it/strings.xml, res/values/strings.xml | Same value in all languages. |
-| ❌ No Content | empty_key | res/values-de/strings.xml, res/values-it/strings.xml, res/values/strings.xml | No value provided. |
-| ⚠️ Not Translated | empty_key | res/values-de/strings.xml, res/values-it/strings.xml, res/values/strings.xml | Same value in all languages. |
