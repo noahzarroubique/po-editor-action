@@ -13,38 +13,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Detect base branch (main or master)
-        id: detect_base
+      - name: Find changed strings.xml files
+        id: find_strings
         run: |
-          if git show-ref --verify --quiet refs/remotes/origin/main; then
-            echo "BASE_BRANCH=main" >> $GITHUB_ENV
-          elif git show-ref --verify --quiet refs/remotes/origin/master; then
-            echo "BASE_BRANCH=master" >> $GITHUB_ENV
-          else
-            echo "No main or master branch found!" >&2
-            exit 1
-          fi
+          git fetch origin ${{ github.base_ref }}
+          git status
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true
+        shell: bash
 
-      - name: Fetch all history
-        run: git fetch --unshallow || true
-
-      - name: Fetch base branch
-        run: git fetch origin ${{ env.BASE_BRANCH }}:${{ env.BASE_BRANCH }}
-
-      - name: Get changed strings.xml files
-        id: changed_files
+      - name: Get list of changed strings.xml files
+        id: changed_strings
         run: |
-          FILES="$(git diff --name-only ${{ env.BASE_BRANCH }}...HEAD | grep 'strings.xml')" 
-          echo "FILES=$FILES" >> $GITHUB_ENV
+          git fetch origin ${{ github.base_ref }}
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true > changed_strings.txt
+          echo "files=$(cat changed_strings.txt | xargs)" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Run logical checks on changed strings.xml files
-        if: env.FILES != ''
+        if: steps.changed_strings.outputs.files != ''
+        env:
+          FILES: ${{ steps.changed_strings.outputs.files }}
         run: |
           pip install lxml
           python3 .github/scripts/check_strings.py
 
       - name: Comment on PR with results
-        if: env.FILES != ''
+        if: steps.changed_strings.outputs.files != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
