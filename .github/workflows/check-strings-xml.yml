@@ -35,6 +35,7 @@ jobs:
           FILES: ${{ steps.changed_strings.outputs.files }}
         run: |
           pip install lxml
+          echo "Checking files: $FILES"
           python3 .github/scripts/check_strings.py
 
       - name: Comment on PR with results
