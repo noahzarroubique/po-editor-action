@@ -31,12 +31,16 @@ jobs:
 
       - name: Run logical checks on changed strings.xml files
         if: steps.changed_strings.outputs.files != ''
-        env:
-          FILES: ${{ steps.changed_strings.outputs.files }}
         run: |
           pip install lxml
-          echo "Checking files: $FILES"
-          python3 .github/scripts/check_strings.py
+          echo "Changed files: ${{ steps.changed_strings.outputs.files }}"
+          ARGS=""
+          for f in ${{ steps.changed_strings.outputs.files }}; do
+            BASE_FILE=/tmp/base-$(basename $(dirname $f))-$(basename $f)
+            git show origin/${{ github.base_ref }}:$f > $BASE_FILE 2>/dev/null || touch $BASE_FILE
+            ARGS="$ARGS $f $BASE_FILE"
+          done
+          python3 .github/scripts/check_strings.py $ARGS
 
       - name: Comment on PR with results
         if: steps.changed_strings.outputs.files != ''
