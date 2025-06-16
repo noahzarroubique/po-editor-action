@@ -6,35 +6,45 @@ on:
       - main
       - master
 
+permissions:
+  pull-requests: write
+  issues: write
+
 jobs:
   check-strings-xml:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for accurate diff
 
       - name: Find changed strings.xml files
         id: find_strings
         run: |
           git fetch origin ${{ github.base_ref }}
-          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true
+          git status
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '/strings.xml' || true
         shell: bash
 
       - name: Get list of changed strings.xml files
         id: changed_strings
         run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true > changed_strings.txt
-          echo "files=$(cat changed_strings.txt | xargs)" >> $GITHUB_OUTPUT
+          echo "files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '/strings.xml' | xargs)" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run logical checks on changed strings.xml files
         if: steps.changed_strings.outputs.files != ''
-        env:
-          FILES: ${{ steps.changed_strings.outputs.files }}
         run: |
           pip install lxml
-          python3 .github/scripts/check_strings.py
+          echo "Changed files: ${{ steps.changed_strings.outputs.files }}"
+          ARGS=""
+          for f in ${{ steps.changed_strings.outputs.files }}; do
+            BASE_FILE=/tmp/base-$(basename $(dirname $f))-$(basename $f)
+            git show origin/${{ github.base_ref }}:$f > $BASE_FILE 2>/dev/null || touch $BASE_FILE
+            ARGS="$ARGS $f $BASE_FILE"
+          done
+          python3 .github/scripts/check_strings.py $ARGS
 
       - name: Comment on PR with results
         if: steps.changed_strings.outputs.files != ''
@@ -43,4 +53,5 @@ jobs:
         run: |
           body=$(cat .github/scripts/strings_issues.txt)
           gh pr comment ${{ github.event.pull_request.number }} --body "$body" || \
-          gh issue comment ${{ github.event.pull_request.number }} --body "$body"
+          gh issue comment ${{ github.event.pull_request.number }} --body "$body" || \
+          echo "$body"
