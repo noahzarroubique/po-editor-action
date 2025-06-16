@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Esempi di stringa</string>
+    <string name="hello">Ciao</string>
+    <string name="goodbye">Arrivederci</string>
+    <string name="please">Per favore</string>
+    <string name="thank_you">Grazie</string>
+    <string name="yes">Sì</string>
+    <string name="no">No</string>
+    <string name="welcome">Benvenuto</string>
+    <string name="good_morning">Buongiorno</string>
+    <string name="good_night">Buona notte</string>
+</resources>
