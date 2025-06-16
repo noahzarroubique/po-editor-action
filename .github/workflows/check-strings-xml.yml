@@ -6,6 +6,10 @@ on:
       - main
       - master
 
+permissions:
+  pull-requests: write
+  issues: write
+
 jobs:
   check-strings-xml:
     runs-on: ubuntu-latest
@@ -49,4 +53,5 @@ jobs:
         run: |
           body=$(cat .github/scripts/strings_issues.txt)
           gh pr comment ${{ github.event.pull_request.number }} --body "$body" || \
-          gh issue comment ${{ github.event.pull_request.number }} --body "$body"
+          gh issue comment ${{ github.event.pull_request.number }} --body "$body" || \
+          echo "$body"
