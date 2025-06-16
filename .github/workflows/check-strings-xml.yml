@@ -28,6 +28,7 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }}
           git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml' || true > changed_strings.txt
+          ls
           echo "files=$(cat changed_strings.txt | xargs)" >> $GITHUB_OUTPUT
         shell: bash
 
